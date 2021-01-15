@@ -98,7 +98,25 @@ when this is done the stored procedure will:
 
 # Configure your 1st Connection and execute the discovery pipelined
 
-ToDo
+In order to ingest data from a source we need to define its connection, 
+in this Read me file we will discuss how to connect to a Microsoft SQL database using SQL Server Authentication (MSSQL).
+
+The MSSQL part of this engine relies on storing passwords in an Azure Key Vault, and it makes the assumption that the username is the name of the Key Vault secret,
+Before you populate the [ME_Config].[Connection] table it is important that the password has been stored in the Key Vault and named in exact case as the username deployed on the source MSSQL server, for more information about Azure Key Vault please click here: https://docs.microsoft.com/en-us/azure/key-vault/general/
+
+Provided that the MSSQL password has been stored in the Azure Key Vault you can now populate the [ME_Config].[Connection],
+
+The table contains four attributes they are: 
+
+        [ConnectionType], this defines the source connection IE: MSSQL for Microsoft SQL Server database with SQL Server authentication, PLSSQL for oracle. 
+        [ConnectionName], this is in the MSSQL server case the name of the Database to connect to,
+        [ConnectionString] This is the fqdn of the SQL Server
+        and [ConnectionKVSecret] this is the username that will be used to access the SQL Server and the name of the secret in the leyvault that stores its password.
+        
+ 
+Once this has been populated trigger the "PrimeDynamicSQLDBtoRAWMetadata" pipeline.
+ 
+This process will configure the ME_Config.Dataset table and you are now in a position to start running the metadata engine.
 
 
 
