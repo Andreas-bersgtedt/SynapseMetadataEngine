@@ -81,7 +81,19 @@ here is the manual for Azure Storage Explorer: https://docs.microsoft.com/en-us/
 
 # Setup the Globals using the ME_Config.sp_AlterGlobals Procedure
 
-ToDo
+The metadata engine is based on a set of configurations, in order for any of the pipelines to function in the baseline code we need to know two things:
+
+The 1st is the name of our storage account, this is being used in almost all pipelines and in some of the dynamic SQL in the system,
+the 2nd is the name of the stage schema that is used by the Dedicated SQL Pool to stage the data in the Data Warehouse component.
+
+These two global attributes are stored in the [ME_Config].[GLOBALS] table and need to be initially primed by executing the [ME_Config].[sp_AlterGlobals] stored procedure passing in two variables @STORAGE_ACCOUNT and @STAGE_SCHEMA,
+when this is done the stored procedure will:
+
+        1 - Truncate the [ME_Config].[GLOBALS] table
+        2 - Insert the new attributes
+        3 - Attempt to create the Stage Schema if needed
+        
+  
 
 
 # Configure your 1st Connection and execute the discovery pipelined
