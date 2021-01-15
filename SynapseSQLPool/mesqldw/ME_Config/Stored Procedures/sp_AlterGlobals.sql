@@ -17,10 +17,11 @@ DECLARE @SQL VARCHAR(4000)
 SET @SQL = 'CREATE SCHEMA ['+@STAGE_SCHEMA+']
     AUTHORIZATION [dbo];'
 
-
+BEGIN TRY
 EXEC (@SQL)
-
-
-
+END TRY
+BEGIN CATCH
+PRINT 'Schema exists or can not be created'
+END CATCH
 
 END
