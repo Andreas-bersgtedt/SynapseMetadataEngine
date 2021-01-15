@@ -1,0 +1,255 @@
+{
+	"name": "DynamicSQLDBtoRAWMetadata",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetConfigurations",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlPoolSource",
+						"sqlReaderStoredProcedureName": "[ME_Config].[sp_ADFGetDynamicRDBMSQuery]",
+						"storedProcedureParameters": {
+							"DataSetType": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.DataSetType",
+									"type": "Expression"
+								}
+							},
+							"RunGroupCode": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.RunGroupCode",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"dataset": {
+						"referenceName": "me_config_dataset_sqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "FE_Execute_SQL_Pipeline",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetConfigurations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetConfigurations').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Execute Generic Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "SQLtoParquet",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SqlServerName": {
+										"value": "@{item().DBServerName}",
+										"type": "Expression"
+									},
+									"SqlDatabaseName": {
+										"value": "@{item().DBName}",
+										"type": "Expression"
+									},
+									"SQLKVName": {
+										"value": "@{item().SQLKVName}",
+										"type": "Expression"
+									},
+									"SqlUserName": {
+										"value": "@{item().SqlUserName}",
+										"type": "Expression"
+									},
+									"SQLQuery": {
+										"value": "@{item().SQLQuery}",
+										"type": "Expression"
+									},
+									"DLContainer": {
+										"value": "@{item().DLContainer}",
+										"type": "Expression"
+									},
+									"DLPath": {
+										"value": "@{item().DLFolder}",
+										"type": "Expression"
+									},
+									"DLFileName": {
+										"value": "@{item().DLFileName}",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Stage Metadata",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "FE_Execute_SQL_Pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "inbound",
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlPoolSink",
+						"preCopyScript": "TRUNCATE TABLE [ME_Data].[MetadataEntityStage]"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "metadatacontainer",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "MetadataEntityStageTable",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete Processed Files",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "Stage Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "metadatacontainer",
+						"type": "DatasetReference"
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.parquet",
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Ingest_Metadata",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Delete Processed Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[ME_Data].[sp_ProcessDynamicStagedMetadata]",
+					"storedProcedureParameters": {
+						"DataSetType": {
+							"value": {
+								"value": "@pipeline().parameters.DataSetType",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"DataSetType": {
+				"type": "string"
+			},
+			"RunGroupCode": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ParentPipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-07T10:02:59Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

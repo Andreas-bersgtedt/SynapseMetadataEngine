@@ -1,0 +1,208 @@
+{
+	"name": "PrimeDynamicSQLDBtoRAWMetadata",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetConfigurations",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlPoolSource",
+						"sqlReaderQuery": "SELECT SQLQuery=REPLACE('\nSELECT [DataSetType]=¬MSSQL¬,[RunGroupCode]=¬999¬,[DataSetName]=T.name,[SchemaName]=s.name\n,[TargetLake]=¬RAW¬,[ConnectionId]=¬'+CONVERT(VARCHAR(20),C.iD)+'¬\n,[IsEnabled]=0\nFROM sys.tables t inner join sys.schemas s on t.schema_id=s.schema_id','¬','''')\n  ,[DataSetType]='MSSQL', \n\t\tDBServerName=C.[ConnectionString],\n\t\tDBName=C.[ConnectionName],\n\t\tSQLKVName=C.[ConnectionKVSecret]\n\t\t,SqlUserName=C.[ConnectionKVSecret]\n\t\t  ,DLContainer='metadata'\n\t  ,DLFolder='me_config_dataset'\n\t  ,DLFileName=LOWER(CONCAT(C.[ConnectionName],'_',C.[ConnectionKVSecret]))\n  FROM [ME_Config].[Connection] C\n  Where C.id not in (SELECT ConnectionId From [ME_Config].[DataSet])\n  and C.Connectiontype='MSSQL'"
+					},
+					"dataset": {
+						"referenceName": "me_config_dataset_sqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "FE_Execute_SQL_Pipeline",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetConfigurations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetConfigurations').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Generic Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "SQLtoParquet",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SqlServerName": {
+										"value": "@{item().DBServerName}",
+										"type": "Expression"
+									},
+									"SqlDatabaseName": {
+										"value": "@{item().DBName}",
+										"type": "Expression"
+									},
+									"SQLKVName": {
+										"value": "@{item().SQLKVName}",
+										"type": "Expression"
+									},
+									"SqlUserName": {
+										"value": "@{item().SqlUserName}",
+										"type": "Expression"
+									},
+									"SQLQuery": {
+										"value": "@{item().SQLQuery}",
+										"type": "Expression"
+									},
+									"DLContainer": {
+										"value": "@{item().DLContainer}",
+										"type": "Expression"
+									},
+									"DLPath": {
+										"value": "@{item().DLFolder}",
+										"type": "Expression"
+									},
+									"DLFileName": {
+										"value": "@{item().DLFileName}",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Insert Missing DataSets",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "FE_Execute_SQL_Pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": {
+								"value": "me_config_dataset",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "SqlPoolSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "metadatacontainer",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "me_config_dataset_Table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Delete Processed Files",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "Insert Missing DataSets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "MetadataConfContainer",
+						"type": "DatasetReference"
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"wildcardFileName": "*.parquet",
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"parameters": {
+			"DataSetType": {
+				"type": "string",
+				"defaultValue": "MSSQL"
+			},
+			"RunGroupCode": {
+				"type": "string",
+				"defaultValue": "999"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ParentPipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-07T10:43:39Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

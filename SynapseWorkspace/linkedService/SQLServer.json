@@ -1,0 +1,40 @@
+{
+	"name": "SQLServer",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"SqlServerName": {
+				"type": "String"
+			},
+			"SqlDatabaseName": {
+				"type": "string"
+			},
+			"sqlusername": {
+				"type": "string"
+			},
+			"kvsecretname": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Data Source=@{linkedService().SqlServerName};Initial Catalog=@{linkedService().SqlDatabaseName};User ID=@{linkedService().sqlusername}",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault1",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().kvsecretname",
+					"type": "Expression"
+				}
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

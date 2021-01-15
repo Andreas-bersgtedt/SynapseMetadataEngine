@@ -1,0 +1,73 @@
+{
+	"name": "MetadataEntityStageTable",
+	"properties": {
+		"annotations": [],
+		"type": "SqlPoolTable",
+		"schema": [
+			{
+				"name": "MetadataQuerySource",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataEntityName",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataSchemaName",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectName",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectType",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectlength",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectPrecision",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectScale",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectCollation",
+				"type": "varchar"
+			},
+			{
+				"name": "DataSetID",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectOrder",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "MetadataObjectIdentityFlag",
+				"type": "varchar"
+			},
+			{
+				"name": "MetadataObjectRefreshUTCTimeStamp",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "ME_Data",
+			"table": "MetadataEntityStage"
+		},
+		"sqlPool": {
+			"referenceName": "mesqldw",
+			"type": "SqlPoolReference"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

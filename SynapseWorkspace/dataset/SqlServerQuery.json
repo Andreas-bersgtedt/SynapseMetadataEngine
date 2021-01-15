@@ -1,0 +1,45 @@
+{
+	"name": "SqlServerQuery",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQLServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"SqlServerName": {
+					"value": "@dataset().SqlServerName",
+					"type": "Expression"
+				},
+				"SqlDatabaseName": {
+					"value": "@dataset().SqlDatabaseName",
+					"type": "Expression"
+				},
+				"sqlusername": {
+					"value": "@dataset().SqlUserName",
+					"type": "Expression"
+				},
+				"kvsecretname": {
+					"value": "@dataset().KvSecretName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"KvSecretName": {
+				"type": "string"
+			},
+			"SqlUserName": {
+				"type": "string"
+			},
+			"SqlDatabaseName": {
+				"type": "string"
+			},
+			"SqlServerName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

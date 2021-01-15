@@ -1,0 +1,128 @@
+{
+	"name": "MSSQLtoRAW",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetConfigurations",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlPoolSource",
+						"sqlReaderStoredProcedureName": "[ME_Data].[sp_ADFGetSQLConfig]",
+						"storedProcedureParameters": {
+							"DataSetType": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.DataSetType",
+									"type": "Expression"
+								}
+							},
+							"RunGroupCode": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.RunGroupCode",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"dataset": {
+						"referenceName": "me_config_dataset_sqlTable",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "FE_Execute_SQL_Pipeline",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetConfigurations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetConfigurations').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Execute Generic Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "SQLtoParquet",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SqlServerName": {
+										"value": "@{item().DBServerName}",
+										"type": "Expression"
+									},
+									"SqlDatabaseName": {
+										"value": "@{item().DBName}",
+										"type": "Expression"
+									},
+									"SQLKVName": {
+										"value": "@{item().SQLKVName}",
+										"type": "Expression"
+									},
+									"SqlUserName": {
+										"value": "@{item().SqlUserName}",
+										"type": "Expression"
+									},
+									"SQLQuery": {
+										"value": "@{item().SQLQuery}",
+										"type": "Expression"
+									},
+									"DLContainer": {
+										"value": "@{item().DLContainer}",
+										"type": "Expression"
+									},
+									"DLPath": {
+										"value": "@{item().DLFolder}",
+										"type": "Expression"
+									},
+									"DLFileName": {
+										"value": "@{item().DLFileName}",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"DataSetType": {
+				"type": "string",
+				"defaultValue": "MSSQL"
+			},
+			"RunGroupCode": {
+				"type": "string",
+				"defaultValue": "999"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-07T09:08:22Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

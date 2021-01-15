@@ -1,0 +1,287 @@
+{
+	"name": "SQLtoParquet",
+	"properties": {
+		"activities": [
+			{
+				"name": "LogStart",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Source query:',pipeline().parameters.SQLQuery,' started')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SQLtoParquet",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LogStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "@pipeline().parameters.SQLQuery",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SqlServerQuery",
+						"type": "DatasetReference",
+						"parameters": {
+							"KvSecretName": {
+								"value": "@pipeline().parameters.SQLKVName",
+								"type": "Expression"
+							},
+							"SqlUserName": {
+								"value": "@pipeline().parameters.SqlUserName",
+								"type": "Expression"
+							},
+							"SqlDatabaseName": {
+								"value": "@pipeline().parameters.SqlDatabaseName",
+								"type": "Expression"
+							},
+							"SqlServerName": {
+								"value": "@pipeline().parameters.SqlServerName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ParquetFile",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": {
+								"value": "@pipeline().parameters.DLContainer",
+								"type": "Expression"
+							},
+							"dlFolderName": {
+								"value": "@pipeline().parameters.DLPath",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@pipeline().parameters.DLFileName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "LogEnd_Success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "SQLtoParquet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Success')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LogEnd_Fail",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "SQLtoParquet",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Failed please investigate')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"SqlServerName": {
+				"type": "string"
+			},
+			"SqlDatabaseName": {
+				"type": "string"
+			},
+			"SQLKVName": {
+				"type": "string"
+			},
+			"SqlUserName": {
+				"type": "string"
+			},
+			"SQLQuery": {
+				"type": "string"
+			},
+			"DLContainer": {
+				"type": "string"
+			},
+			"DLPath": {
+				"type": "string"
+			},
+			"DLFileName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ChildPipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-07T08:29:03Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

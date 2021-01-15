@@ -1,0 +1,2 @@
+﻿CREATE SCHEMA [ME_Secure]
+    AUTHORIZATION [dbo];

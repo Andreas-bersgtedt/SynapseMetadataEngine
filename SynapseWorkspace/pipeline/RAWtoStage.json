@@ -1,0 +1,262 @@
+{
+	"name": "RAWtoStage",
+	"properties": {
+		"activities": [
+			{
+				"name": "LogStart",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Source Partition:',pipeline().parameters.PARTITIONSTRING,' started')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LogEnd_Success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ME_Stage_sp_DynamicStageLoad",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Success')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "LogEnd_Fail",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ME_Stage_sp_DynamicStageLoad",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Failed please investigate')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ME_Stage_sp_DynamicStageLoad",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LogStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[ME_Stage].[sp_DynamicStageLoad]",
+					"storedProcedureParameters": {
+						"DatasetID": {
+							"value": {
+								"value": "@pipeline().parameters.DatasetID",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"PARTITIONSTRING": {
+							"value": {
+								"value": "@pipeline().parameters.PARTITIONSTRING",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ME_Stage_sp_UpdateStagePartition",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ME_Stage_sp_DynamicStageLoad",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[ME_Stage].[sp_UpdateStagePartition]",
+					"storedProcedureParameters": {
+						"Partitionid": {
+							"value": {
+								"value": "@pipeline().parameters.Partitionid",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"State": {
+							"value": "1",
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"DatasetID": {
+				"type": "int"
+			},
+			"PARTITIONSTRING": {
+				"type": "string"
+			},
+			"Partitionid": {
+				"type": "int"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ChildPipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-14T01:29:21Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

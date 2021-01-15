@@ -1,0 +1,21 @@
+{
+	"name": "me_config_dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MetadataLake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "me_config_dataset",
+				"fileSystem": "metadata"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

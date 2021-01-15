@@ -1,0 +1,12 @@
+14/01/2021 20:42:11	This log contains information about the import operation of the script 'Attribute.sql' into project 'mesqldw' on computer 'DESKTOP-SOF8MN3' by user'anbergst.
+14/01/2021 20:42:11	Started importing file: C:\Users\anbergst\AppData\Local\Temp\tmpB483.tmp 
+14/01/2021 20:42:11	File name C:\Users\anbergst\AppData\Local\Temp\tmpB483.tmp (size: 30099)
+14/01/2021 20:42:11	Parsing import script
+14/01/2021 20:42:11	Total number of batches in script: 31
+14/01/2021 20:42:11	Total number of statements in script: 31
+14/01/2021 20:42:11	The script was successfully imported into the project.
+14/01/2021 20:42:11	Analyzing schema objects...
+14/01/2021 20:42:11	Scanning project for duplicate elements
+14/01/2021 20:42:11	Finished duplicate element processing
+14/01/2021 20:42:14	A summary of the import was saved to the following location: C:\Users\anbergst\source\repos\2019\mesqldw\mesqldw\Import Script Logs\Attribute_sql_20210114084211.log
+14/01/2021 20:42:14	Click Finish to continue...

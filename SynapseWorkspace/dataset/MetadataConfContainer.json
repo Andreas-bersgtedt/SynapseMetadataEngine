@@ -1,0 +1,19 @@
+{
+	"name": "MetadataConfContainer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MetadataLake",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "me_config_dataset",
+				"fileSystem": "metadata"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
