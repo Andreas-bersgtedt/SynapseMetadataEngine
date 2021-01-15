@@ -67,7 +67,16 @@ https://docs.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deploy
 
 # Create the baseline ADLS Filesystem containers
 
-ToDo
+Before we configure any of the globals we need to ensure that the baseline Storage container filesystems exist on the ADLS storage account used for ingesting metadata etc.
+
+By default the system is developed to use two primary file system containers.
+
+1: "raw" this is hardcoded in the priming scripts, but this can be changed after by altering the ME_Config.Dataset table and setting the [TargetLake] attribute.
+2: "metadata" this container is also hardcoded in the integration pipe lines, and in order to change this there is a mix of things to do that will not be covered by this Read Me.
+
+Create the two filesystems named above using Azure Storage Explorer or any other supported way, 
+here is the manual for Azure Storage Explorer: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-explorer
+
 
 
 # Setup the Globals using the ME_Config.sp_AlterGlobals Procedure
