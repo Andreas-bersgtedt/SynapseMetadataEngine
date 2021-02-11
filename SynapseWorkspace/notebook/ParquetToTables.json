@@ -1,0 +1,232 @@
+{
+	"name": "ParquetToTables",
+	"properties": {
+		"description": "Universal load procedue ",
+		"folder": {
+			"name": "Data Engineering"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mesparkmedium",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/851c54e9-e549-4015-87aa-eb3e00270118/resourceGroups/SynapsemetadataengineRG/providers/Microsoft.Synapse/workspaces/synapsemetadataengine/bigDataPools/mesparkmedium",
+				"name": "mesparkmedium",
+				"type": "Spark",
+				"endpoint": "https://synapsemetadataengine.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mesparkmedium",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "2.4",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Generic Parquet file/folder to hive or SQL Pool table\r\n",
+					"\r\n",
+					"This is a generic data engineering pattern that reads a parquet file or collection of files and instantiate them into a hive table , Synapse SQL Pool Table or a DeltaLake Table.\r\n",
+					"\r\n",
+					"## This notebook assumes the folowing:\r\n",
+					"\r\n",
+					"- The storage account is linked and authenticated in synapse\r\n",
+					"\r\n",
+					"- The storage account is ADLS gen2\r\n",
+					"\r\n",
+					"\r\n",
+					"# The notebook is driven by a set of parameters that are devided up into two catagories:\r\n",
+					"\r\n",
+					"## Catagory 1: Source Variables:\r\n",
+					"\r\n",
+					"- blob_account_name,  this is the name of your storage account \r\n",
+					"- blob_container_name, this is the name of your storage container \r\n",
+					"- blob_relative_path, this is your relative folder path for the parquet file(s) \r\n",
+					"\r\n",
+					"## Catagory 2: Target Variables:\r\n",
+					"\r\n",
+					"- target_db,\r\n",
+					"this is the name of the target database(hive or pool) this is the target folder for deltalake tables\r\n",
+					"- target_table, \r\n",
+					"this is the name of the target table (hive or pool) in the case of pool this must be in the format schemaName.tableName, for delta tables this is the table name\r\n",
+					"- target_type, \r\n",
+					"this is the target type, can be H for Hive ,P for Pool and D for Delta Table\r\n",
+					"\r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Azure storage access info\r\n",
+					"blob_account_name = 'synapsemetadataengine001' # replace with your blob name (default is NYCTaxi Dataset)\r\n",
+					"blob_container_name = 'metadataengine' # replace with your container name (default is NYCTaxi Dataset)\r\n",
+					"blob_relative_path = '/NYCTaxi/PassengerCountStats_parquetformat/*.parquet' # replace with your relative folder path (default is NYCTaxi Dataset)\r\n",
+					"\r\n",
+					"#Target Info\r\n",
+					"target_db = 'taxidata' # this is the name of the target database(hive or pool) this is the target folder for deltalake tables\r\n",
+					"target_table ='PassengerCountStats' # this is the name of the target table (hive or pool) in the case of pool this must be in the format schemaName.tableName, for delta tables this is the table name\r\n",
+					"target_type = 'H' # this is the target type, can be H for Hive ,P for Pool and D for Delta Table\r\n",
+					""
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": true
+				},
+				"source": [
+					"from delta.tables import *\r\n",
+					"\r\n",
+					"if target_type == 'H': \r\n",
+					"    print(\"executing: create database IF NOT EXISTS %s\"% (target_db))\r\n",
+					"    spark.sql(\"create database IF NOT EXISTS %s\"% (target_db) )\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"print('Attempting to create dataframe from: abfss://%s@%s.dfs.core.windows.net%s'% (blob_container_name, blob_account_name, blob_relative_path))\r\n",
+					"df = spark.read.load('abfss://%s@%s.dfs.core.windows.net%s'% (blob_container_name, blob_account_name, blob_relative_path)\r\n",
+					"                    , format='parquet')\r\n",
+					"if target_type == 'H':                    \r\n",
+					"    df.write.mode(\"overwrite\").saveAsTable(\"%s.%s\"% (target_db, target_table))\r\n",
+					"elif  target_type != 'H':\r\n",
+					"    pyspark_df.createOrReplaceTempView(\"pysparkdftemptable\")\r\n",
+					"    \r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "scala"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%spark\r\n",
+					"if  (target_type == 'P')\r\n",
+					"{\r\n",
+					"val pool_df = spark.sqlContext.sql (\"select * from pysparkdftemptable\")\r\n",
+					"\r\n",
+					"pool_df.write.synapsesql(\"%s.%s\"% (target_db, target_table), Constants.INTERNAL)\r\n",
+					"}"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "scala"
+					},
+					"collapsed": true
+				},
+				"source": [
+					"%%spark\r\n",
+					"if  (target_type == 'D')\r\n",
+					"{\r\n",
+					"val delta_data = spark.sqlContext.sql (\"select * from pysparkdftemptable\")\r\n",
+					"data.write.format(\"delta\").save(\"%s%s\"% (target_db, target_table))\r\n",
+					"}\r\n",
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
