@@ -1,0 +1,95 @@
+{
+	"name": "ParquetToTables",
+	"properties": {
+		"description": "This is a Generic Pipeline that uses a Spark Notebook to ingest a Parquet source into a Hive, Synapse SQL Pool or a Delta Table",
+		"activities": [
+			{
+				"name": "ParquetToTables Notebook",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "ParquetToTables",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"blob_account_name": {
+							"value": {
+								"value": "@pipeline().parameters.ADLS_account_name",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"blob_container_name": {
+							"value": {
+								"value": "@pipeline().parameters.ADLS_container_name",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"blob_relative_path": {
+							"value": {
+								"value": "@pipeline().parameters.ADLS_relative_path",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"target_db": {
+							"value": {
+								"value": "@pipeline().parameters.target_db",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"target_table": {
+							"value": {
+								"value": "@pipeline().parameters.target_table",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"target_type": {
+							"value": {
+								"value": "@pipeline().parameters.target_type",
+								"type": "Expression"
+							},
+							"type": "string"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"ADLS_account_name": {
+				"type": "string"
+			},
+			"ADLS_container_name": {
+				"type": "string"
+			},
+			"ADLS_relative_path": {
+				"type": "string"
+			},
+			"target_db": {
+				"type": "string"
+			},
+			"target_table": {
+				"type": "string"
+			},
+			"target_type": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ChildPipelines"
+		},
+		"annotations": []
+	}
+}
