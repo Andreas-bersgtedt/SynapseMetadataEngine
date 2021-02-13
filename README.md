@@ -12,7 +12,7 @@ An active Azure subscription with sufficient access to create:
 3.	Azure Synapse Analytics Workspace
 4.	Azure Synapse Analytics Dedicated Pool
 
-Visual Studio 2019 Comunity Edition or Later
+(Otional) Visual Studio 2019 Comunity Edition or Later
 
 # Getting Started:
 
@@ -58,6 +58,15 @@ Step 3: Enable the Keyvault usage in the SQLServer Dataset by:
 
 # Deploy the SQL Server project
 
+## Option 1 (Using Synapse Workspace)
+
+In The Synapse Workspace open the **Develop** blade
+then expand the **Run Me 1st** folder and execure the scripts in their numerical order,
+this will create all baseline Scema, Tables and Functions used by the Metadata engine.
+
+Now expand the **Run Me 2nd** folder and execute all these scripts in numerical order, this will create all required stored procedures that is used to manage the engine.
+
+## Option 2 (Using Visual Stdio)
 Using Vusual Studio open the "mesqldw.sln" in the SynapseSQLFolder of this repository.
 
 Deploy the Database project to your Synapse Dedicated Pool by following the following documentation:
