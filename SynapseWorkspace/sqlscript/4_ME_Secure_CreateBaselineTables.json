@@ -1,0 +1,19 @@
+{
+	"name": "4_ME_Secure_CreateBaselineTables",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE TABLE [ME_Secure].[DL_Containers] (\n    [Id]                   BIGINT         IDENTITY (1, 1) NOT NULL,\n    [DLContainerName]      VARCHAR (500)  NOT NULL,\n    [DLstorageaccountname] VARCHAR (500)  NOT NULL,\n    [DLKVSecretName]       VARCHAR (500)  NOT NULL,\n    [KeyVaultName]         VARCHAR (1000) NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);\n\nCREATE TABLE [ME_Secure].[DW_Nodes] (\n    [Id]             BIGINT        IDENTITY (1, 1) NOT NULL,\n    [DWName]         VARCHAR (500) NOT NULL,\n    [DWArcType]      VARCHAR (100) NOT NULL,\n    [DWHostName]     VARCHAR (500) NOT NULL,\n    [DWDBName]       VARCHAR (200) NOT NULL,\n    [DWUserName]     VARCHAR (100) NOT NULL,\n    [DWUserKVSecret] VARCHAR (100) NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

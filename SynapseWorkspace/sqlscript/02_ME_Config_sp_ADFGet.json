@@ -1,0 +1,19 @@
+{
+	"name": "02_ME_Config_sp_ADFGet",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Config].[sp_ADFGetDynamicRDBMSQuery] @DataSetType [VARCHAR](100),@RunGroupCode [VARCHAR](20) AS\nBEGIN\n\nSELECT\td.[DataSetType], \n\t\tDBServerName=C.[ConnectionString],\n\t\tDBName=C.[ConnectionName],\n\t\tSQLKVName=C.[ConnectionKVSecret]\n\t\t,SqlUserName=C.[ConnectionKVSecret]\n       ,[DataSetName]\n      ,[SchemaName]\n      ,DLContainer='metadata'\n\t  ,DLFolder='inbound'\n\t  ,DLFileName=LOWER(CONCAT(D.[SchemaName],'_',D.[DataSetName]))\n      ,SQLQuery=\tME_Config.fnGetRMDBSQuery(\n\t\t\t\t\tCONVERT(VARCHAR(20),D.id), \n\t\t\t\t\tCONVERT(VARCHAR(250),D.DataSetName),\n\t\t\t\t\tCONVERT(VARCHAR(250),D.SchemaName), \n\t\t\t\t\tCONVERT(VARCHAR(100),D.DataSetType)\n\t\t\t\t\t)\n      \nFROM\t[ME_Config].[DataSet] D\n\t\tINNER JOIN [ME_Config].[Connection] C ON D.[ConnectionId]=C.id\n\nWHERE\tD.DataSetType=@DataSetType\n\t\tAND (D.RunGroupCode=@RunGroupCode OR @RunGroupCode='-1')\n\t\tAND D.IsEnabled < 2\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

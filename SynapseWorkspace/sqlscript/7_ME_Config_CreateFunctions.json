@@ -1,0 +1,19 @@
+{
+	"name": "7_ME_Config_CreateFunctions",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE FUNCTION [ME_Config].[fnGetDatatypedeff] (@DataSetType [VARCHAR](50),@DataType [VARCHAR](500),@Size [VARCHAR](20),@Precision [VARCHAR](20),@SCALE [VARCHAR](20)) RETURNS VARCHAR(500)\nAS\nBEGIN\n    -- Declare the return variable\n\tDECLARE @DATATYPEDEFF VARCHAR(500)\n\n/*Datatype Definition for Microsoft SQL Datatypes*/\nIF @DataSetType = 'MSSQL'\nSET @DATATYPEDEFF =(\n/*SELECT*/\tCASE\tWHEN\t@DataType LIKE '%INT%' or\n\t\t\t\t\t\t@DataType LIKE 'bit' or\n\t\t\t\t\t\t--@DataType LIKE 'xml' or\n\t\t\t\t\t\t@DataType LIKE 'uniqueidentifier' or\n\t\t\t\t\t\t@DataType LIKE '%money%' or\n\t\t\t\t\t\t@DataType LIKE 'real' or\n\t\t\t\t\t\t(@DataType = 'float' and @Precision='53')\n\n\t\t\t\tTHEN\t@DataType\n\t\t\t\tWHEN\t@DataType IN\t(\n\t\t\t\t\t\t\t\t\t\t'DECIMAL'\n\t\t\t\t\t\t\t\t\t\t,'DEC'\n\t\t\t\t\t\t\t\t\t\t,'numeric'\n\t\t\t\t\t\t\t\t\t\t)\n\t\t\t\tTHEN\t@DataType + '('+@Precision+','+@SCALE+')'\n\t\t\t\t\n\t\t\t\tWHEN\t@DataType LIKE '%var%' and @DataType != 'sql_variant'\n\t\t\t\tTHEN\t@DataType + '('+CASE WHEN @Size='-1' or @Size > '4000' Then 'MAX' ELSE @Size END + ')'\n\n\t\t\t\tWHEN\t@DataType IN\t(\n\t\t\t\t\t\t\t\t\t\t'datetime'\n\t\t\t\t\t\t\t\t\t\t,'date'\n\t\t\t\t\t\t\t\t\t\t,'smalldatetime'\n\t\t\t\t\t\t\t\t\t\t)\n\t\t\t\tTHEN\t@DataType \n\t\t\t\tWHEN\t@DataType IN\t(\n\t\t\t\t\t\t\t\t\t\t'time'\n\t\t\t\t\t\t\t\t\t\t,'datetime2'\n\t\t\t\t\t\t\t\t\t\t,'datetimeoffset'\n\t\t\t\t\t\t\t\t\t\t)\n\t\t\t\tTHEN\t@DataType + '('+@SCALE+')'\n\t\t\t\tWHEN    @DataType LIKE 'xml'\n\t\t\t\tTHEN\t'VARCHAR(MAX)'\n\t\t\t\tELSE\t@DataType + '('+@Size+')'\n\t\tEND\n)\n\n/*Datatype Definition for Oracle SQL Datatypes*/\nIF @DataSetType = 'PLSQL'\nSET @DATATYPEDEFF = @DataType + '('+@Size+')'\n\n/*Datatype Definition for MySQL Datatypes*/\nIF @DataSetType = 'MySQL'\nSET @DATATYPEDEFF = @DataType + '('+@Size+')'\n\n\tRETURN @DATATYPEDEFF\nEND\nGO\n\nCREATE FUNCTION [ME_Config].[fnGetRMDBSQuery] (@DataSetID [VARCHAR](20),@DataSetName [VARCHAR](250),@SchemaName [VARCHAR](250),@DataSetType [VARCHAR](100)) RETURNS VARCHAR(4000)\nAS\nBEGIN\n    -- Declare the return variable\n    DECLARE @Query VARCHAR(4000)\n\n    -- T-SQL statements to compute the return value\nIF @DataSetType = 'MSSQL' SET @Query ='\nSELECT\tMetadataQuerySource=Convert(VARCHAR(50),¬Dynamic¬)\n\t\t,MetadataEntityName=Convert(VARCHAR(250),T.name)\n\t\t,MetadataSchemaName=Convert(VARCHAR(250),S.name)\n\t\t,MetadataObjectName=Convert(VARCHAR(250),C.name)\n\t\t,MetadataObjectType=Convert(VARCHAR(250),TY.name)\n\t\t,MetadataObjectlength=Convert(VARCHAR(20),C.max_length)\n\t\t,MetadataObjectPrecision=Convert(VARCHAR(20),C.precision)\n\t\t,MetadataObjectScale=Convert(VARCHAR(20),C.scale)\n\t\t,MetadataObjectCollation=Convert(VARCHAR(250),ISNULL(C.collation_name,¬¬))\n\t\t,DataSetID=Convert(VARCHAR(20),¬<DataSetID>¬)\n\t\t,MetadataObjectOrder=C.column_id\n\t\t,MetadataObjectIdentityFlag=Convert(VARCHAR(20),C.is_identity)\n\t\t,MetadataObjectRefreshUTCTimeStamp=GETUTCDATE()\n\t\t\t\t\nFROM\tsys.columns C\n\t\tINNER JOIN sys.tables T on C.object_id=T.object_id\n\t\tINNER JOIN sys.schemas S ON T.schema_id=S.schema_id\n\t\tINNER JOIN sys.types TY on C.system_type_id=TY.system_type_id  AND TY.system_type_id=TY.user_type_id\nWHERE\tT.Name = ¬<DataSetName>¬\n\t\tAND S.name = ¬<SchemaName>¬';\nSET @Query=REPLACE(@Query,'¬','''')\nSET @Query=REPLACE(@Query,'<DataSetID>',@DataSetID)\nSET @Query=REPLACE(@Query,'<DataSetName>',@DataSetName)\nSET @Query=REPLACE(@Query,'<SchemaName>',@SchemaName)\n\n    RETURN @Query\nEND\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

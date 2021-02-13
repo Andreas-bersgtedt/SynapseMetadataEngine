@@ -1,0 +1,19 @@
+{
+	"name": "10_ME_Stage_sp_UpdateStage",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Stage].[sp_UpdateStagePartition] @Partitionid [int],@State [Int] AS\nBEGIN\n\n  UPDATE [ME_Stage].[RawPartitionStage]\n  SET [Status]=@State\n\n  WHERE id =@Partitionid\n\n\n  END\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

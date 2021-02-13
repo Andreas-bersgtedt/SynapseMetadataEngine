@@ -1,0 +1,19 @@
+{
+	"name": "1_CreateBaselineSchema",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "DECLARE @SQL AS VARCHAR(MAX)='\nCREATE SCHEMA [ME_Config]\n    AUTHORIZATION [dbo]\n'\nBEGIN TRY EXEC(@SQL) END TRY BEGIN CATCH PRINT 1 END CATCH\nGO\nDECLARE @SQL AS VARCHAR(MAX)='\nCREATE SCHEMA [ME_Data]\n    AUTHORIZATION [dbo]'    \nBEGIN TRY EXEC(@SQL) END TRY BEGIN CATCH PRINT 2 END CATCH\nGO\nDECLARE @SQL AS VARCHAR(MAX)='\nCREATE SCHEMA [ME_Secure]\n    AUTHORIZATION [dbo]'\nBEGIN TRY EXEC(@SQL) END TRY BEGIN CATCH PRINT 3 END CATCH\nGO\nDECLARE @SQL AS VARCHAR(MAX)='\nCREATE SCHEMA [ME_Stage]\n    AUTHORIZATION [dbo]'\nBEGIN TRY EXEC(@SQL) END TRY BEGIN CATCH PRINT 4 END CATCH\nGO\nDECLARE @SQL AS VARCHAR(MAX)='    \nCREATE SCHEMA [Metadata]\n    AUTHORIZATION [dbo]'    \nBEGIN TRY EXEC(@SQL) END TRY BEGIN CATCH PRINT 5 END CATCH\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"name": "03_ME_Config_sp_AlterGlobals",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Config].[sp_AlterGlobals] @STORAGE_ACCOUNT [VARCHAR](4000),@STAGE_SCHEMA [VARCHAR](4000) AS\nBEGIN\n\nTRUNCATE TABLE [ME_Config].[GLOBALS]\n\nINSERT INTO [ME_Config].[GLOBALS]\nSELECT Attribute='STORAGE_ACCOUNT',AttributeValue=@STORAGE_ACCOUNT\nUNION ALL\nSELECT Attribute='STAGE_SCHEMA',AttributeValue=@STAGE_SCHEMA\n;\n\nDECLARE @SQL VARCHAR(4000)\n\nSET @SQL = 'CREATE SCHEMA ['+@STAGE_SCHEMA+']\n    AUTHORIZATION [dbo];'\n\n\nEXEC (@SQL)\n\n\n\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

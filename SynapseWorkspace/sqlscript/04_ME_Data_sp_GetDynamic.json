@@ -1,0 +1,19 @@
+{
+	"name": "04_ME_Data_sp_GetDynamic",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Data].[sp_GetDynamicMSSQLQuery] @DataSetType [VARCHAR](100),@ExecutionGroup [VARCHAR](10),@ExecutionPlane [VARCHAR](10) AS\nBEGIN\n\nDECLARE @PARTITION VARCHAR(50)\nSET @PARTITION = (SELECT REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(16),GETUTCDATE(),120),'-','\\'),' ','\\'),':','\\'))\nSELECT\t[DataSetType] \n\t\t,DBServerName\n\t\t,DBName\n\t\t,SQLKVName\n\t\t,SqlUserName\n       ,[DataSetName]\n      ,[SchemaName]\n      ,DLContainer\n\t  ,DLFolder=DLFolder+'\\'+@PARTITION\n\t  ,DLFileName\n\t\t,SQLQuery=CONVERT(NVARCHAR(MAX),'SELECT '+Cols+' FROM ['+[SchemaName]+'].['+[Name]+']')\n\t\t,Cols\n\t\t,DataSetID=ID\n\t\t,[Target_Partition]=REPLACE(@PARTITION,'\\','/')\n\t\tFROM\n\t\t(\n\nSELECT\td.[DataSetType], \n\t\tDBServerName=C.[ConnectionString],\n\t\tDBName=C.[ConnectionName],\n\t\tSQLKVName=C.[ConnectionKVSecret]\n\t\t,SqlUserName=C.[ConnectionKVSecret]\n       ,D.[DataSetName]\n      ,D.[SchemaName]\n      ,DLContainer=LOWER(E.TargetLake)\n\t  ,DLFolder=LOWER(E.LakeFolder)\n\t  ,DLFileName=LOWER(CONCAT(D.[SchemaName],'_',D.[DataSetName]))\n\t  \n\t  ,E.[Name]\n\t  ,D.ID\n      --\n\t  ,Cols=CONVERT(NVARCHAR(MAX), (\n\t\t\t\t\t\t\t\t\tISNULL(STRING_AGG('['+REPLACE(o.[MetadataObjectName],' ','_')+']=['+o.[MetadataObjectName]+']',',')\tWITHIN GROUP ( ORDER BY o.[MetadataObjectOrder]  ASC  )\n\t\t\t\t\t\t\t\t\t\t\t,'*')\n\t\t\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t--SELECT *\n  FROM [Metadata].[Entity] E\n  INNER JOIN [ME_Config].[DataSet] D on D.id=e.datasetid AND D.[IsEnabled]=1\n  INNER JOIN  [ME_Config].[Connection] C ON   D.CONNECTIONID=C.ID\n  INNER JOIN [Metadata].[Object] o ON o.EntityID=E.id\n\n\n  GROUP BY \td.[DataSetType], \n\t\tC.[ConnectionString],\n\t\tC.[ConnectionName],\n\t\tC.[ConnectionKVSecret]\n\t\t,C.[ConnectionKVSecret]\n       ,D.[DataSetName]\n      ,D.[SchemaName]\n      ,LOWER(E.TargetLake)\n\t  ,LOWER(E.LakeFolder)\n\t  ,LOWER(CONCAT(D.[SchemaName],'_',D.[DataSetName]))\n\t  ,E.[Name]\n\t  ,D.ID\n\t  ) AS X\n\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

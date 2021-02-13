@@ -1,0 +1,19 @@
+{
+	"name": "5_ME_Stage_CreateBaselineTables",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE TABLE [ME_Stage].[RawPartitionStage] (\n    [Id]               BIGINT        IDENTITY (1, 1) NOT NULL,\n    [DatasetID]        INT           NOT NULL,\n    [Partition_String] VARCHAR (100) NOT NULL,\n    [Row_Count]        BIGINT        NOT NULL,\n    [InsertTimestamp]  DATETIME2 (7) NOT NULL,\n    [Status]           INT           DEFAULT ((0)) NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

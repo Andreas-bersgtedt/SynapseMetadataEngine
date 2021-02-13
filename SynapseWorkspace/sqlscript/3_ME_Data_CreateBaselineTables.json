@@ -1,0 +1,19 @@
+{
+	"name": "3_ME_Data_CreateBaselineTables",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE TABLE [ME_Data].[MetadataEntityStage] (\n    [MetadataQuerySource]               VARCHAR (50)  NULL,\n    [MetadataEntityName]                VARCHAR (250) NULL,\n    [MetadataSchemaName]                VARCHAR (250) NULL,\n    [MetadataObjectName]                VARCHAR (250) NULL,\n    [MetadataObjectType]                VARCHAR (250) NULL,\n    [MetadataObjectlength]              VARCHAR (20)  NULL,\n    [MetadataObjectPrecision]           VARCHAR (20)  NULL,\n    [MetadataObjectScale]               VARCHAR (20)  NULL,\n    [MetadataObjectCollation]           VARCHAR (250) NULL,\n    [DataSetID]                         VARCHAR (20)  NULL,\n    [MetadataObjectOrder]               INT           NOT NULL,\n    [MetadataObjectIdentityFlag]        VARCHAR (20)  NULL,\n    [MetadataObjectRefreshUTCTimeStamp] DATETIME      NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

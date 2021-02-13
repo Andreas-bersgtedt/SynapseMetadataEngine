@@ -1,0 +1,19 @@
+{
+	"name": "06_ME_Stage_InsertData",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Stage].[InsertDataStageEntry] @Partition_String [VARCHAR](100),@DatasetID [INT],@Row_Count [BIGINT] AS \nBEGIN\n\nINSERT INTO  ME_Stage.RawPartitionStage\n\t\t\t(\n\t\t\tDatasetID,\tPartition_String,\tRow_Count,\tInsertTimestamp\n\t\t\t)\nSELECT\t\t@DatasetID,\t@Partition_String,\t@Row_Count,\tGETUTCDATE()\n\nEND\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

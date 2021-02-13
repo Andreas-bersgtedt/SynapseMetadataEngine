@@ -1,0 +1,19 @@
+{
+	"name": "6_Metadata_CreateBaselineTables",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE TABLE [Metadata].[Attribute] (\n    [Id]                     BIGINT          IDENTITY (1, 1) NOT NULL,\n    [EntityId]               BIGINT          NOT NULL,\n    [ObjectId]               BIGINT          NULL,\n    [MetadataObjectHash]     BIGINT          NULL,\n    [DataSetID]              VARCHAR (20)    NULL,\n    [KEY]                    VARCHAR (100)   NULL,\n    [Value]                  NVARCHAR (4000) NULL,\n    [KeyValueDataType]       VARCHAR (50)    NULL,\n    [KeyValueRefreshDate]    DATETIME        NOT NULL,\n    [RecordProcessTimestamp] DATETIME        NOT NULL,\n    [CreatedUTCTimestamp]    DATETIME        NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);\n\nCREATE TABLE [Metadata].[Entity] (\n    [Id]                     BIGINT         IDENTITY (1, 1) NOT NULL,\n    [DataSetId]              BIGINT         NOT NULL,\n    [Name]                   VARCHAR (250)  NULL,\n    [SchemaName]             VARCHAR (250)  NULL,\n    [TargetLake]             VARCHAR (250)  NOT NULL,\n    [LakeFolder]             VARCHAR (2000) NOT NULL,\n    [RecordProcessTimestamp] DATETIME       NOT NULL,\n    [CreatedUTCTimestamp]    DATETIME       NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);\nCREATE TABLE [Metadata].[Object] (\n    [Id]                                BIGINT        IDENTITY (1, 1) NOT NULL,\n    [EntityId]                          BIGINT        NOT NULL,\n    [DataSetID]                         VARCHAR (20)  NULL,\n    [MetadataObjectName]                VARCHAR (250) NULL,\n    [MetadataObjectOrder]               INT           NOT NULL,\n    [MetadataObjectHash]                BIGINT        NULL,\n    [MetadataObjectRefreshUTCTimeStamp] DATETIME      NULL,\n    [RecordProcessTimestamp]            DATETIME      NOT NULL,\n    [CreatedUTCTimestamp]               DATETIME      NOT NULL\n)\nWITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION = ROUND_ROBIN);\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

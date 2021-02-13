@@ -1,0 +1,19 @@
+{
+	"name": "09_ME_Stage_sp_GetStage",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Stage].[sp_GetStagePartitions] AS\nBEGIN\nSELECT [Id]\n      ,[DatasetID]\n      ,[Partition_String]\n      ,[Row_Count]\n      ,[InsertTimestamp]\n      ,[Status]\n  FROM [ME_Stage].[RawPartitionStage]\n\n  WHERE STATUS=0\n  ORDER BY [InsertTimestamp]\n\n  END\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
