@@ -23,38 +23,11 @@ When this is done please make sure that the Synapse Analytics Managed Identity h
 then open the synapse workspace and connect it to the Git repository,
 NB! make sure that you set the root path to "/SynapseWorkspace/".
 
+Before you continue the next section create the **SQL Pool** in the workspace and name it apropriately by following the following documentation:
+https://docs.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-sql-pool-studio#
+
 
 # Initial asset setup
-
-Now that the baseline components are in place you need to make sure that the Linked services are configured correctly so that you can publish
-the workspace components, this must be done in the following steps:
-
-Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
-
-        a) Open the Synapse Studio, 
-        b) Click the Manage Blade, 
-        c) Edit the "SQLServer" linked service,
-        d) Disable the use of Key vault for password by clicking the password button.
-        e) Type in any random text in the password field.
-        f) Click Apply
-
-Step 2: Resolve the Synapse Pool data sets by:
-
-        a) Open the Integrate Blade.
-        b) Click "Validate All"
-        c) Follow the instructions and resolve the two detected issues.
-        d) click the Publish button.
-
-Step 3: Enable the Keyvault usage in the SQLServer Dataset by:
-
-        a) Open the Synapse Studio, 
-        b) Click the Manage Blade, 
-        c) Edit the "SQLServer" linked service,
-        d) Enable the use of Key vault for password by clicking the Key Vault button in the password section.
-        e) Open the Dynamic content section for the key vault secret and paste in @linkedService().kvsecretname.
-        f) Click Apply
-        g) Click Apply
-        h) click the Publish button.
 
 # Deploy the SQL Server project
 
@@ -85,6 +58,52 @@ By default the system is developed to use two primary file system containers.
 
 Create the two filesystems named above using Azure Storage Explorer or any other supported way, 
 here is the manual for Azure Storage Explorer: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-explorer
+
+
+# Resolve all Linked Services issues and data set problems.
+
+Now that the baseline components are in place you need to make sure that the Linked services are configured correctly so that you can publish
+the workspace components, this must be done in the following steps:
+
+Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
+
+        a) Open the Synapse Studio, 
+        b) Click the Manage Blade, 
+        c) In the "Linked services" Edit the "SQLServer" linked service,
+        d) Disable the use of Key vault for password by clicking the password button.
+        e) Type in any random text in the password field.
+        f) Click Apply
+
+Step 2: Resolve the Synapse Pool data sets by:
+
+        a) Open the Integrate Blade.
+        b) Click "Validate All"
+        c) Follow the instructions and resolve all detected issues.
+        
+        
+
+Step 3: Resolve all Azure Data Lake Storage Gen2 Storage Accoun linked services issues
+
+        a) Open the Synapse Studio, 
+        b) Click the Manage Blade, 
+        c) In the "Linked services" Edit all Azure Data Lake Storage Gen2 linked servicees,
+        d) Correct the URLs to point to the new storage account that was setup during the synapse workspace deployment IE:
+           https://{storageaccountname}.dfs.core.windows.net.
+        e) Click Close.
+        f) Click the Publish button.
+
+Step 3: Enable the Keyvault usage in the SQLServer Dataset by:
+
+        a) Open the Synapse Studio, 
+        b) Click the Manage Blade, 
+        c) Edit the "SQLServer" linked service,
+        d) Enable the use of Key vault for password by clicking the Key Vault button in the password section.
+        e) Open the Dynamic content section for the key vault secret and paste in @linkedService().kvsecretname.
+        f) Click Apply
+        g) Click Apply
+        h) click the Publish button.
+
+
 
 
 
