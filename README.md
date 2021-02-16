@@ -7,24 +7,28 @@ Synapse Analytics Workspace and a Synapse Analytics Dedicated SQL Pool.
 A Github or Azure DevOPS account,
 An active Azure subscription with sufficient access to create:
 
-1.	Azure Key Vault
-2.	Azure Storage Account
-3.	Azure Synapse Analytics Workspace
-4.	Azure Synapse Analytics Dedicated Pool
+- Azure Key Vault
+- Azure Storage Account
+- Azure Synapse Analytics Workspace
+- Azure Synapse Analytics Dedicated Pool
+- Azure Synapse Analytics Spark Pool
 
 (Otional) Visual Studio 2019 Comunity Edition or Later
 
 # Getting Started:
 
-Before you begin Clone this Reposi into a brand new Github or Azure DevOPS repository,
-once this is done create the Azure Key Vault and the Azure Synapse Analytics Workspace.
+**Before you begin Clone this Repository into a brand new Github or Azure DevOPS repository,
+once this is done create the Azure Key Vault and the Azure Synapse Analytics Workspace.**
 
-When this is done please make sure that the Synapse Analytics Managed Identity has Get access to Secrets ,keys and certificates,
+When this is done **please make sure that the Synapse Analytics Managed Identity has Get access to Secrets ,keys and certificates**
 then open the synapse workspace and connect it to the Git repository,
-NB! make sure that you set the root path to "/SynapseWorkspace/".
+NB! make sure that you set the root path to **"/SynapseWorkspace/"**.
 
 Before you continue the next section create the **SQL Pool** in the workspace and name it apropriately by following the following documentation:
 https://docs.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-sql-pool-studio#
+and also a **Spark Pool** following this documentation:
+https://docs.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-apache-spark-pool-studio
+
 
 
 # Initial asset setup
@@ -65,7 +69,7 @@ here is the manual for Azure Storage Explorer: https://docs.microsoft.com/en-us/
 Now that the baseline components are in place you need to make sure that the Linked services are configured correctly so that you can publish
 the workspace components, this must be done in the following steps:
 
-Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
+## Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
 
         a) Open the Synapse Studio, 
         b) Click the Manage Blade, 
@@ -74,15 +78,19 @@ Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
         e) Type in any random text in the password field.
         f) Click Apply
 
-Step 2: Resolve the Synapse Pool data sets by:
+## Step 2: Resolve the Synapse Pool data sets by:
 
         a) Open the Integrate Blade.
         b) Click "Validate All"
         c) Follow the instructions and resolve all detected issues.
+        d) Go back to the "Manage" blade and click on "Linked services"
+        e) Edit the "Metadataengine" linked service and update the "Fully qualified domain name" with the workspace name and update the 
+         "Database name" with the SQL Pool that you created in the "Getting started" section above
+        f) Click apply
         
         
 
-Step 3: Resolve all Azure Data Lake Storage Gen2 Storage Accoun linked services issues
+## Step 3: Resolve all Azure Data Lake Storage Gen2 Storage Accoun linked services issues
 
         a) Open the Synapse Studio, 
         b) Click the Manage Blade, 
@@ -90,18 +98,30 @@ Step 3: Resolve all Azure Data Lake Storage Gen2 Storage Accoun linked services 
         d) Correct the URLs to point to the new storage account that was setup during the synapse workspace deployment IE:
            https://{storageaccountname}.dfs.core.windows.net.
         e) Click Close.
-        f) Click the Publish button.
 
-Step 3: Enable the Keyvault usage in the SQLServer Dataset by:
+## Step 4: Resolve links to Synapse Spark clusters and update the Azure Key Vault Linked Service
+        
+        a) Open the "Develop" Blade,
+        b) Expand "Notebooks" and "Data Engineering"
+        c) Open the "ParquetToTables" notebook
+        d) In the "Attach to" drop down select the Spark cluster that you created in the "Getting started" section above
+        e) Open the "Manage" blade and "Linked Services"
+        f) Edit the "AzureKeyVault1" linked service and update the "Base URL" by entering the URL to the keyvault that you created in the "Getting Started" section above.
+        g) Click Save
+        e) Click the Publish button.
+        
+
+## Step 5: Enable the Keyvault usage in the SQLServer Dataset by:
 
         a) Open the Synapse Studio, 
         b) Click the Manage Blade, 
         c) Edit the "SQLServer" linked service,
         d) Enable the use of Key vault for password by clicking the Key Vault button in the password section.
-        e) Open the Dynamic content section for the key vault secret and paste in @linkedService().kvsecretname.
-        f) Click Apply
+        e) Select the "AzureKeyVault1" in the "AKV linked service" drop down box
+        e) Open the Dynamic content section for the key vault secret and paste in @linkedService().kvsecretname
+        f) Click Finish
         g) Click Apply
-        h) click the Publish button.
+        h) Click the Publish button.
 
 
 
@@ -117,9 +137,10 @@ the 2nd is the name of the stage schema that is used by the Dedicated SQL Pool t
 These two global attributes are stored in the [ME_Config].[GLOBALS] table and need to be initially primed by executing the [ME_Config].[sp_AlterGlobals] stored procedure passing in two variables @STORAGE_ACCOUNT and @STAGE_SCHEMA,
 when this is done the stored procedure will:
 
-        1 - Truncate the [ME_Config].[GLOBALS] table
-        2 - Insert the new attributes
-        3 - Attempt to create the Stage Schema if needed
+        - Truncate the [ME_Config].[GLOBALS] table
+        - Insert the new attributes
+        - Attempt to create the Stage Schema if needed
+        
         
   
 
