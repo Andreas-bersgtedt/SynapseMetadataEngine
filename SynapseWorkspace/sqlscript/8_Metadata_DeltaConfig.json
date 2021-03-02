@@ -1,0 +1,19 @@
+{
+	"name": "8_Metadata_DeltaConfig",
+	"properties": {
+		"folder": {
+			"name": "Run Me 1st"
+		},
+		"content": {
+			"query": "CREATE VIEW Metadata.DeltaConfig\nAS\nSELECT C.Entityid\n\t,WhereCol = C.[Value]\n\t,WhereOperator = o.[value]\n\t,wherevalue = ISNULL(v.[value], CASE \n\t\t\tWHEN DT.[Value] LIKE '%DATE%'\n\t\t\t\tTHEN '1900-01-01'\n\t\t\tELSE '0'\n\t\t\tEND)\nFROM [Metadata].[Attribute] C WITH (NOLOCK)\nINNER JOIN [Metadata].[Attribute] O WITH (NOLOCK) ON C.Entityid = O.Entityid\nINNER JOIN [Metadata].[Attribute] V WITH (NOLOCK) ON C.Entityid = V.Entityid\nINNER JOIN [Metadata].[Attribute] DT WITH (NOLOCK) ON C.Entityid = DT.Entityid\nWHERE C.[Key] = 'EntityDeltaColumn'\n\tAND O.[Key] = 'EntityDeltaOperator'\n\tAND V.[Key] = 'EntityDeltaValue'\n\tAND DT.[Key] = 'EntityDeltaValueType'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

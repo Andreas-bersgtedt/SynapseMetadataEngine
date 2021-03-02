@@ -3,10 +3,20 @@
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
 		"description": "This is the Main Linked service that communicates with the Metadata Engine",
+		"parameters": {
+			"SynapseWS": {
+				"type": "string",
+				"defaultValue": "synapsemetadataengine"
+			},
+			"SynapsePool": {
+				"type": "string",
+				"defaultValue": "mesqldw"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlDW",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=synapsemetadataengine.database.windows.net;Initial Catalog=mesqldw"
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=\"@{concat(linkedService().SynapseWS,'.database.windows.net')}\";Initial Catalog=@{linkedService().SynapsePool}"
 		},
 		"connectVia": {
 			"referenceName": "AutoResolveIntegrationRuntime",

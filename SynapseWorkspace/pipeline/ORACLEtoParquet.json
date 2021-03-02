@@ -1,0 +1,300 @@
+{
+	"name": "ORACLEtoParquet",
+	"properties": {
+		"activities": [
+			{
+				"name": "LogStart",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Source query:',pipeline().parameters.OracleQuery,' started')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"SynapseWS": "synapsemetadataengine",
+						"SynapsePool": "mesqldw"
+					}
+				}
+			},
+			{
+				"name": "ORACLEtoParquet",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LogStart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "OracleSource",
+						"oracleReaderQuery": {
+							"value": "@pipeline().parameters.OracleQuery",
+							"type": "Expression"
+						},
+						"partitionOption": "None",
+						"queryTimeout": "02:00:00"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "OraclePLSQLQuery",
+						"type": "DatasetReference",
+						"parameters": {
+							"srchostname": {
+								"value": "@pipeline().parameters.OracleServerName",
+								"type": "Expression"
+							},
+							"srcportname": "1521",
+							"srcsrvicename": {
+								"value": "@pipeline().parameters.OraclelDatabaseName",
+								"type": "Expression"
+							},
+							"srcusername": {
+								"value": "@pipeline().parameters.OracleUserName",
+								"type": "Expression"
+							},
+							"srckvsecretname": {
+								"value": "@pipeline().parameters.OracleKVName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ParquetFile",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerName": {
+								"value": "@pipeline().parameters.DLContainer",
+								"type": "Expression"
+							},
+							"dlFolderName": {
+								"value": "@pipeline().parameters.DLPath",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@pipeline().parameters.DLFileName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "LogEnd_Success",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ORACLEtoParquet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Success')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"SynapseWS": "synapsemetadataengine",
+						"SynapsePool": "mesqldw"
+					}
+				}
+			},
+			{
+				"name": "LogEnd_Fail",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ORACLEtoParquet",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "ME_Config.sp_insertActivityEvent",
+					"storedProcedureParameters": {
+						"EventActivityName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventMessage": {
+							"value": {
+								"value": "@concat('Pipeline Failed please investigate')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"EventSource": {
+							"value": "ADF",
+							"type": "String"
+						},
+						"EventSourceID": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Metadataengine",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"SynapseWS": "synapsemetadataengine",
+						"SynapsePool": "mesqldw"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"OracleServerName": {
+				"type": "string"
+			},
+			"OraclelDatabaseName": {
+				"type": "string"
+			},
+			"OracleKVName": {
+				"type": "string"
+			},
+			"OracleUserName": {
+				"type": "string"
+			},
+			"OracleQuery": {
+				"type": "string"
+			},
+			"DLContainer": {
+				"type": "string"
+			},
+			"DLPath": {
+				"type": "string"
+			},
+			"DLFileName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "MetadataEngine/ChildPipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-07T08:29:03Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

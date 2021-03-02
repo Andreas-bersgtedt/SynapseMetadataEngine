@@ -1,0 +1,34 @@
+{
+	"name": "MetadataStg",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Metadataengine",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"SynapseWS": "synapsemetadataengine",
+				"SynapsePool": "mesqldw"
+			}
+		},
+		"parameters": {
+			"DS_SCHEMA_NAME": {
+				"type": "string"
+			},
+			"DS_TABLE_NAME": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().DS_SCHEMA_NAME",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().DS_TABLE_NAME",
+				"type": "Expression"
+			}
+		}
+	}
+}

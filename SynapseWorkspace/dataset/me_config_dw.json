@@ -1,0 +1,12 @@
+{
+	"name": "me_config_dw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Metadataengine",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": []
+	}
+}

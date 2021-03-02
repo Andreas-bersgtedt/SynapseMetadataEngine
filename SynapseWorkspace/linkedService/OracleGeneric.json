@@ -1,0 +1,43 @@
+{
+	"name": "OracleGeneric",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"HostName": {
+				"type": "String"
+			},
+			"HostPort": {
+				"type": "String"
+			},
+			"Service_Name": {
+				"type": "String"
+			},
+			"UserName": {
+				"type": "String"
+			},
+			"srckvsecretname": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "Oracle",
+		"typeProperties": {
+			"connectionString": "host=@{linkedService().HostName};port=@{linkedService().HostPort};serviceName=@{linkedService().Service_Name};user id=@{linkedService().UserName}",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault1",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().srckvsecretname",
+					"type": "Expression"
+				}
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,45 @@
+{
+	"name": "MySQLServer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MySQLServer",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"servername": {
+					"value": "@dataset().DBServerName",
+					"type": "Expression"
+				},
+				"port": "3306",
+				"databasename": {
+					"value": "@dataset().DBName",
+					"type": "Expression"
+				},
+				"username": {
+					"value": "@dataset().SqlUserName",
+					"type": "Expression"
+				},
+				"kvsecret": {
+					"value": "@dataset().SQLKVName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DBServerName": {
+				"type": "string"
+			},
+			"DBName": {
+				"type": "string"
+			},
+			"SQLKVName": {
+				"type": "string"
+			},
+			"SqlUserName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": []
+	}
+}

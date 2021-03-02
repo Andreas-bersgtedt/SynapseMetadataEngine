@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "GetStagePartitions",
+				"description": "exec sp",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -16,11 +17,13 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlPoolSource",
-						"sqlReaderStoredProcedureName": "[ME_Stage].[sp_GetStagePartitions]"
+						"type": "SqlDWSource",
+						"sqlReaderStoredProcedureName": "[ME_Stage].[sp_GetStagePartitions]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "MetadataEntityStageTable",
+						"referenceName": "me_config_dw",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false

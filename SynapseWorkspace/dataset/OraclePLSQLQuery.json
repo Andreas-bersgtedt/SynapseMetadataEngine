@@ -1,0 +1,51 @@
+{
+	"name": "OraclePLSQLQuery",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OracleGeneric",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"HostName": {
+					"value": "@dataset().srchostname",
+					"type": "Expression"
+				},
+				"HostPort": {
+					"value": "@dataset().srcportname",
+					"type": "Expression"
+				},
+				"Service_Name": {
+					"value": "@dataset().srcsrvicename",
+					"type": "Expression"
+				},
+				"UserName": {
+					"value": "@dataset().srcusername",
+					"type": "Expression"
+				},
+				"srckvsecretname": {
+					"value": "@dataset().srckvsecretname",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"srchostname": {
+				"type": "String"
+			},
+			"srcportname": {
+				"type": "String"
+			},
+			"srcsrvicename": {
+				"type": "String"
+			},
+			"srcusername": {
+				"type": "String"
+			},
+			"srckvsecretname": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "OracleTable",
+		"schema": []
+	}
+}

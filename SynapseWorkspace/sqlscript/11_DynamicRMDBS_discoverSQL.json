@@ -1,0 +1,19 @@
+{
+	"name": "11_DynamicRMDBS_discoverSQL",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROCEDURE ME_Config.sp_GENERATE_DynamicRMDBS_discoverSQL\nAS\nBEGIN\nSELECT SQLQuery=REPLACE('\nSELECT ¬'+C.Connectiontype+'¬ AS DataSetType,¬999¬ AS RunGroupCode,TABLE_NAME AS DataSetName,TABLE_SCHEMA AS SchemaName\n,¬RAW¬ AS TargetLake,¬'+CONVERT(VARCHAR(20),C.iD)+'¬ AS ConnectionId\n,0 AS IsEnabled\n  FROM INFORMATION_SCHEMA.TABLES\n  WHERE TABLE_TYPE=¬BASE TABLE¬\n  '+CASE WHEN C.Connectiontype='MYSQL' \n\t\tTHEN 'AND TABLE_SCHEMA NOT IN (¬mysql¬,¬performance_schema¬,¬sys¬) '\n\t\tELSE '' END\n,'¬','''')\n  ,[DataSetType]=C.Connectiontype, \n\t\tDBServerName=C.[ConnectionString],\n\t\tDBName=C.[ConnectionName],\n\t\tSQLKVName=C.[ConnectionKVSecret]\n\t\t,SqlUserName=C.[ConnectionKVSecret]\n\t\t  ,DLContainer='metadata'\n\t  ,DLFolder='me_config_dataset'\n\t  ,DLFileName=LOWER(CONCAT(C.[ConnectionName],'_',C.[ConnectionKVSecret]))\n  FROM [ME_Config].[Connection] C\n  Where C.id not in (SELECT ConnectionId From [ME_Config].[DataSet])\n  and C.Connectiontype IN ('MSSQL','MYSQL')\n\n\n\n  END\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "mesqldw",
+				"databaseName": "mesqldw"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}

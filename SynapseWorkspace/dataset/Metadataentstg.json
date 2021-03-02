@@ -1,8 +1,16 @@
 {
-	"name": "MetadataEntityStageTable",
+	"name": "Metadataentstg",
 	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Metadataengine",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"SynapseWS": "synapsemetadataengine",
+				"SynapsePool": "mesqldw"
+			}
+		},
 		"annotations": [],
-		"type": "SqlPoolTable",
+		"type": "AzureSqlDWTable",
 		"schema": [
 			{
 				"name": "MetadataQuerySource",
@@ -26,15 +34,21 @@
 			},
 			{
 				"name": "MetadataObjectlength",
-				"type": "varchar"
+				"type": "decimal",
+				"precision": 18,
+				"scale": 0
 			},
 			{
 				"name": "MetadataObjectPrecision",
-				"type": "varchar"
+				"type": "decimal",
+				"precision": 18,
+				"scale": 0
 			},
 			{
 				"name": "MetadataObjectScale",
-				"type": "varchar"
+				"type": "decimal",
+				"precision": 18,
+				"scale": 0
 			},
 			{
 				"name": "MetadataObjectCollation",
@@ -46,8 +60,9 @@
 			},
 			{
 				"name": "MetadataObjectOrder",
-				"type": "int",
-				"precision": 10
+				"type": "decimal",
+				"precision": 18,
+				"scale": 0
 			},
 			{
 				"name": "MetadataObjectIdentityFlag",
@@ -63,11 +78,6 @@
 		"typeProperties": {
 			"schema": "ME_Data",
 			"table": "MetadataEntityStage"
-		},
-		"sqlPool": {
-			"referenceName": "mesqldw",
-			"type": "SqlPoolReference"
 		}
-	},
-	"type": "Microsoft.Synapse/workspaces/datasets"
+	}
 }
