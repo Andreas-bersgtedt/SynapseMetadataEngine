@@ -1,0 +1,10 @@
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\bin\Debug\ME2.0.dacpac
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\bin\Debug\ME2.0.dll
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\bin\Debug\ME2.0.pdb
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\ME2.0.sqlprojAssemblyReference.cache
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\Model.xml
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\refactor.xml
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\postdeploy.sql
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\predeploy.sql
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\ME2.0.dll
+C:\Users\anbergst\source\repos\ME2.0\ME2.0\obj\Debug\ME2.0.pdb
