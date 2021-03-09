@@ -33,9 +33,9 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "GetConfigurations",
+						"activity": "Delete Processed Files_copy1",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -333,6 +333,39 @@
 					"parameters": {
 						"SynapseWS": "synapsemetadataengine",
 						"SynapsePool": "mesqldw"
+					}
+				}
+			},
+			{
+				"name": "Delete Processed Files_copy1",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "GetConfigurations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "MetadataConfContainer",
+						"type": "DatasetReference"
+					},
+					"enableLogging": false,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"wildcardFileName": "*.parquet",
+						"enablePartitionDiscovery": false
 					}
 				}
 			}

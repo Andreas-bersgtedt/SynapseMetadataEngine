@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "SqlPoolSource",
+						"type": "SqlDWSource",
 						"sqlReaderStoredProcedureName": "[ME_Data].[sp_ADFGetSQLConfig]",
 						"storedProcedureParameters": {
 							"DataSetType": {
@@ -33,10 +33,12 @@
 									"type": "Expression"
 								}
 							}
-						}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "me_config_dataset_sqlTable",
+						"referenceName": "me_config_dw",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false

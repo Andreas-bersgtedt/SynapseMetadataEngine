@@ -1,0 +1,19 @@
+{
+	"name": "14_ME_Stage_DynamicODS",
+	"properties": {
+		"folder": {
+			"name": "Run Me 2nd"
+		},
+		"content": {
+			"query": "CREATE PROC [ME_Stage].[sp_DynamicODSLoad] @DatasetID [INT] AS\nBEGIN\n\t/*DEBUG\n\tdeclare @DatasetID [INT],@PARTITIONSTRING [VARCHAR](100)\n\n\t\tSET @DatasetID=53\n*/\n\t/*DECLARE GLOBALS*/\n\tDECLARE @SOURCESCHEMA_STG VARCHAR(100)\n\t\n\t\t,@HasDelta INT\n\t\t,@HasBusinessKey INT\n\t\t,@EntityID BIGINT\n\t\t,@TARGETSCHEMA_ODS VARCHAR(MAX)\n\t\t,@TARGETTBL_ODS VARCHAR(MAX)\n\t\t,@SOURCEVW_STG VARCHAR(MAX)\n\t\t,@ODSEXISTS int \n\t\t,@ODSSQL VARCHAR(MAX)\n\t\t,@VWDROP varchar(max)\n\t\n\t/*SET GLOBAL PARAMETERS*/\n\tSET @SOURCESCHEMA_STG = (SELECT TOP 1 AttributeValue\tFROM ME_Config.GLOBALS WHERE [Attribute]='STAGE_SCHEMA')\n\tSET @EntityID = (SELECT id from Metadata.Entity where DatasetID=@DatasetID)\n\tSET @HasBusinessKey = (SELECT COUNT(1) FROM Metadata.Attribute where entityid=@EntityID and [KEY]='EntityRowIdentifier' )\n\n\t\n    \n\n\t\tSET @SOURCEVW_STG =\t(SELECT TOP 1 '['+@SOURCESCHEMA_STG+'].[vw_' + ConnectionName + '_' + e.SchemaName + '_' + e.Name + ']' \n\t\t\t\t\t\t\t\tFROM METADATA.Entity E  INNER JOIN ME_Config.Dataset D ON D.ID=E.DatasetID\n\t\t\t\t\t\t\t\tINNER JOIN ME_Config.Connection C ON C.id=D.ConnectionID\n\t\t\t\t\t\t\t\tWHERE e.id=@EntityID\n\t\t\t\t\t\t\t)\n\t\tSET @TARGETSCHEMA_ODS = (SELECT TOP 1 ConnectionName + '_' + e.SchemaName \n\t\t\t\t\t\t\t\tFROM METADATA.Entity E  INNER JOIN ME_Config.Dataset D ON D.ID=E.DatasetID\n\t\t\t\t\t\t\t\tINNER JOIN ME_Config.Connection C ON C.id=D.ConnectionID\n\t\t\t\t\t\t\t\tWHERE e.id=@EntityID)\n\n\t\tSET @TARGETTBL_ODS = (SELECT TOP 1 e.[name] FROM METADATA.Entity E \tWHERE e.id=@EntityID)\n\n\t\tSET @ODSEXISTS= (SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA=@TARGETSCHEMA_ODS AND TABLE_NAME=@TARGETTBL_ODS)\n\n\t\n\tSET @ODSSQL =(SELECT \n\t'BEGIN TRY DROP TABLE  ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_new] END TRY\n\t BEGIN CATCH PRINT 1 END CATCH\n\t\n\tCREATE TABLE ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_new]\n\t WITH\n\t\t\t(\n\t\t\tDISTRIBUTION = ROUND_ROBIN,\n\t\t\tCLUSTERED COLUMNSTORE INDEX\n\t  \t\t\n\t\t\t)\n\tAS\n\n\tSELECT * FROM '+@SOURCEVW_STG+' \n\t'+CASE WHEN @HasBusinessKey>0 AND @ODSEXISTS>0 then '\n\tUNION ALL\n\tSELECT * FROM ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'] WITH (NOLOCK)\n\tWHERE BusinessKeyHash_id NOT IN (SELECT BusinessKeyHash_id FROM '+@SOURCEVW_STG+');\n    RENAME OBJECT ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'] TO ['+@TARGETTBL_ODS+'_OLD];\n\tRENAME OBJECT ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_new] TO ['+@TARGETTBL_ODS+'];\n\tDROP TABLE ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_OLD]\n\tDROP TABLE ['+@SOURCESCHEMA_STG+'].['+@TARGETSCHEMA_ODS+'_'+@TARGETTBL_ODS+'];' \n\t WHEN @HasBusinessKey <= 1 AND @ODSEXISTS>0 then '\n\tRENAME OBJECT ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'] TO ['+@TARGETTBL_ODS+'_OLD];\n\tRENAME OBJECT ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_new] TO ['+@TARGETTBL_ODS+'];\n\tDROP TABLE ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_OLD]\n\tDROP TABLE ['+@SOURCESCHEMA_STG+'].['+@TARGETSCHEMA_ODS+'_'+@TARGETTBL_ODS+'];' \n\tELSE '\n\tRENAME OBJECT ['+@TARGETSCHEMA_ODS+'].['+@TARGETTBL_ODS+'_new] TO ['+@TARGETTBL_ODS+'];\n\tDROP TABLE ['+@SOURCESCHEMA_STG+'].['+@TARGETSCHEMA_ODS+'_'+@TARGETTBL_ODS+'];'  \n\t END)\n    \n\tSET @VWDROP = 'BEGIN TRY DROP VIEW '+@SOURCEVW_STG+' END TRY  BEGIN CATCH PRINT 2 END CATCH'\n\n\n\tPRINT @ODSSQL\n\tPRINT @VWDROP\n\t\n\tEXEC (@ODSSQL)\n\tEXEC (@VWDROP)\n\t\n\nEND",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"poolName": "Built-in",
+				"databaseName": "master"
+			}
+		},
+		"type": "SqlQuery"
+	}
+}
