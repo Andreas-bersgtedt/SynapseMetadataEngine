@@ -44,7 +44,7 @@ this will create all baseline Scema, Tables and Functions used by the Metadata e
 Now expand the **Run Me 2nd** folder and execute all these scripts in numerical order, this will create all required stored procedures that is used to manage the engine.
 
 ## Option 2 (Using Visual Stdio)
-Using Vusual Studio open the "mesqldw.sln" in the SynapseSQLFolder of this repository.
+Using Vusual Studio open the "ME2.0.sln" in the SynapseSQLFolder of this repository.
 
 Deploy the Database project to your Synapse Dedicated Pool by following the following documentation:
 https://docs.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/deploying-database-projects
