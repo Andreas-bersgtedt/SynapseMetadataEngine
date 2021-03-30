@@ -1,5 +1,15 @@
+# About the Synapse Metadata Engine project
+## What is the Synapse Metadata Engine:
+It is a generic metadata driven framework that enables organisations to build out the data takeon pipelines quickly and at scale.
+
+## Who should use the Synapse Metadata Engine:
+- Data Architects 
+- Cloud data platform developers
+- Data Engineers
+
+
 # Introduction 
-This Repository contains the baseline code for Azure Synapse Analytics that is needed to deploy the Medatada engine to a 
+This Repository contains the baseline code for Azure Synapse Analytics that is needed to deploy the Synapse Metadata Engine to a 
 Synapse Analytics Workspace and a Synapse Analytics Dedicated SQL Pool.
 
 
@@ -21,7 +31,8 @@ An active Azure subscription with sufficient access to create:
 once this is done create the Azure Key Vault and the Azure Synapse Analytics Workspace.**
 
 When this is done **please make sure that the Synapse Analytics Managed Identity has Get access to Secrets ,keys and certificates**
-then open the synapse workspace and connect it to the Git repository,
+then open the synapse workspace and create the 1st liked service to the Azure Key Vault and name it "AzureKeyVault1" 
+once this is saved and published in the workspace go ahead and connect the workspace to the Git repository,
 NB! make sure that you set the root path to **"/SynapseWorkspace/"**.
 
 Before you continue the next section create the **SQL Pool** in the workspace and name it apropriately by following the following documentation:
@@ -39,9 +50,8 @@ https://docs.microsoft.com/en-us/azure/synapse-analytics/quickstart-create-apach
 
 In The Synapse Workspace open the **Develop** blade
 then expand the **Run Me 1st** folder and execure the scripts in their numerical order,
-this will create all baseline Scema, Tables and Functions used by the Metadata engine.
+this will create all baseline scema, tables, functions and stored procedures used by the Metadata engine.
 
-Now expand the **Run Me 2nd** folder and execute all these scripts in numerical order, this will create all required stored procedures that is used to manage the engine.
 
 ## Option 2 (Using Visual Stdio)
 Using Vusual Studio open the "ME2.0.sln" in the SynapseSQLFolder of this repository.
@@ -69,62 +79,36 @@ here is the manual for Azure Storage Explorer: https://docs.microsoft.com/en-us/
 Now that the baseline components are in place you need to make sure that the Linked services are configured correctly so that you can publish
 the workspace components, this must be done in the following steps:
 
-## Step 1: Disable the Keyvault usage in the SQLServer Dataset by:
+## Step 1: Update the Linked Services:
 
         a) Open the Synapse Studio, 
         b) Click the Manage Blade, 
-        c) In the "Linked services" Edit the "SQLServer" linked service,
-        d) Disable the use of Key vault for password by clicking the password button.
-        e) Type in any random text in the password field.
-        f) Click Apply
+        c) In the "Linked services" Edit the "Metadataengine" and "MetadataLake" linked service
+        
 
 ## Step 2: Resolve the Synapse Pool data sets by:
 
-        a) Open the Integrate Blade.
-        b) Click "Validate All"
-        c) Follow the instructions and resolve all detected issues.
-        d) Go back to the "Manage" blade and click on "Linked services"
-        e) Edit the "Metadataengine" linked service and update the "Fully qualified domain name" with the workspace name and update the 
-         "Database name" with the SQL Pool that you created in the "Getting started" section above
-        f) Click apply
-        
-        
+        a) Open the Data Blade.
+        b) Click the "Linked" tabb,
+        c) Expand "Integration datasets"
+        d) You must open and edit all datasets(just update the description) so that they will become part of the deployment,
+           Make sure that you update the liked services properties on the "me_config_dw", "Metadataentstg" and "MetadataStg"  
+                
 
-## Step 3: Resolve all Azure Data Lake Storage Gen2 Storage Accoun linked services issues
+## Step 3: Resolve all Data Pipeline Issues
 
         a) Open the Synapse Studio, 
-        b) Click the Manage Blade, 
-        c) In the "Linked services" Edit all Azure Data Lake Storage Gen2 linked servicees,
-        d) Correct the URLs to point to the new storage account that was setup during the synapse workspace deployment IE:
-           https://{storageaccountname}.dfs.core.windows.net.
-        e) Click Close.
-
-## Step 4: Resolve links to Synapse Spark clusters and update the Azure Key Vault Linked Service
-        
-        a) Open the "Develop" Blade,
-        b) Expand "Notebooks" and "Data Engineering"
-        c) Open the "ParquetToTables" notebook
-        d) In the "Attach to" drop down select the Spark cluster that you created in the "Getting started" section above
-        e) Open the "Manage" blade and "Linked Services"
-        f) Edit the "AzureKeyVault1" linked service and update the "Base URL" by entering the URL to the keyvault that you created in the "Getting Started" section above.
-        g) Click Save
-        e) Click the Publish button.
+        b) Click the Integrate Blade, 
+        c) Modify the description on all pipelines, this will ensure that they become part of the deployment,
         
 
-## Step 5: Enable the Keyvault usage in the SQLServer Dataset by:
-
-        a) Open the Synapse Studio, 
-        b) Click the Manage Blade, 
-        c) Edit the "SQLServer" linked service,
-        d) Enable the use of Key vault for password by clicking the Key Vault button in the password section.
-        e) Select the "AzureKeyVault1" in the "AKV linked service" drop down box
-        e) Open the Dynamic content section for the key vault secret and paste in @linkedService().kvsecretname
-        f) Click Finish
-        g) Click Apply
-        h) Click the Publish button.
-
-
-
+## Step 4: Commit and Publish
+        
+        a) Click the Comit All button,
+        b) Click the Publish Button,
+        c) If resolve any deployment errors that might appear.
+        
+        
 
 
 # Setup the Globals using the ME_Config.sp_AlterGlobals Procedure
