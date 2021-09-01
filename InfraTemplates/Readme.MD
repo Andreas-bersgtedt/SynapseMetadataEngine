@@ -4,6 +4,8 @@ This Folder will host Bicep Templates code so that we can deploy upfront some re
 
 The different pieces are built as Bicep modules and finally the synapse_stack file integrates all the underlying modules into a full deployment.
 
+There is also a .cmd file with the cli instruction to deply the stack. 
+
 ![](imageIaC.png)
 
 To deploy the bicep code follow instructions at https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview.
