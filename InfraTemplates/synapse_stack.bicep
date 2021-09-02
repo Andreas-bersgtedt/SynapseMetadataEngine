@@ -7,6 +7,7 @@ param location string = 'westeurope'
 var resgroupname = '${prefix}-rg'
 var saname = '${prefix}sa'
 var wsname =  '${prefix}ws'
+var keyvaultname = '${prefix}kv'
 // var saurl = 'https://${saname}.dfs.core.windows.net'
 var container = 'datalake'
 
@@ -23,6 +24,18 @@ module resgroupMod 'resgroup.bicep' = {
 }
 
 // modules deployed to resource group
+module keyvaultMod 'keyvault_mod.bicep' = {
+  name: 'keyvaultModule'
+  params: {
+    keyVaultName: keyvaultname
+    location: location
+  }
+  dependsOn: [
+    resgroupMod
+  ]
+  // deploy this module at the subscription scope
+  scope: resourceGroup(resgroupname)
+}
 
 module storageMod 'storage_mod.bicep' = {
   name: 'storageModule'
@@ -31,6 +44,9 @@ module storageMod 'storage_mod.bicep' = {
     location: location
     containername: container
   }
+  dependsOn: [
+    resgroupMod
+  ]
   // deploy this module at the subscription scope
   scope: resourceGroup(resgroupname)
 }
@@ -46,6 +62,7 @@ module synapseMod 'synapse_mod.bicep' = {
   dependsOn: [
     storageMod
     resgroupMod
+    keyvaultMod
   ]
   // deploy this module at the subscription scope
   scope: resourceGroup(resgroupname)
