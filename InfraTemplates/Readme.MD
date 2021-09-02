@@ -8,4 +8,10 @@ There is also a .cmd file with the cli instruction to deply the stack.
 
 ![](imageIaC.png)
 
+###Deployed infrastructure
+- Resource group
+- Keyvault
+- Storage account
+- Synapse workspace
+
 To deploy the bicep code follow instructions at https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview.
