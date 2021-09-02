@@ -5,7 +5,7 @@ param location string = 'westeurope'
 // + Synapse Workspace
 //
 var resgroupname = '${prefix}-rg'
-var saname = '${prefix}sa'
+var saname = '${prefix}'
 var wsname =  '${prefix}ws'
 var keyvaultname = '${prefix}kv'
 // var saurl = 'https://${saname}.dfs.core.windows.net'
@@ -58,6 +58,7 @@ module synapseMod 'synapse_mod.bicep' = {
     workspacename: wsname
     location:  location
     filesystem: container
+    keyvaultname: keyvaultname
   }
   dependsOn: [
     storageMod
@@ -67,5 +68,3 @@ module synapseMod 'synapse_mod.bicep' = {
   // deploy this module at the subscription scope
   scope: resourceGroup(resgroupname)
 }
-
-

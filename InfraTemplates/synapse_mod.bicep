@@ -1,5 +1,5 @@
 @minLength(3)
-@maxLength(11)
+@maxLength(12)
 param workspacename string
 param saurl string
 param location string
@@ -20,56 +20,7 @@ tags: {}
       filesystem: filesystem
     }
     sqlAdministratorLoginPassword: scrambled
-//    managedResourceGroupName: 'string'
     sqlAdministratorLogin: login
-/*    virtualNetworkProfile: {
-      computeSubnetId: 'string'
-    }
-    connectivityEndpoints: {}
-    managedVirtualNetwork: 'string'
-    privateEndpointConnections: [
-      {
-        properties: {
-          privateEndpoint: {}
-          privateLinkServiceConnectionState: {
-            status: 'string'
-            description: 'string'
-          }
-        }
-      }
-    ]
-    encryption: {
-      cmk: {
-        key: {
-          name: 'string'
-          keyVaultUrl: 'string'
-        }
-      }
-    }
-    managedVirtualNetworkSettings: {
-      preventDataExfiltration: bool
-      linkedAccessCheckOnTargetResource: bool
-      allowedAadTenantIdsForLinking: [
-        'string'
-      ]
-    }
-    workspaceRepositoryConfiguration: {
-      type: 'string'
-      hostName: 'string'
-      accountName: 'string'
-      projectName: 'string'
-      repositoryName: 'string'
-      collaborationBranch: 'string'
-      rootFolder: 'string'
-      lastCommitId: 'string'
-      tenantId: 'string'
-    }
-    purviewConfiguration: {
-      purviewResourceId: 'string'
-    }
-    networkSettings: {
-      publicNetworkAccess: 'string'
-    }*/
   }
   identity: {
     type: 'SystemAssigned'

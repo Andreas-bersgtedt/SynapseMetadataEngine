@@ -1,5 +1,5 @@
 @minLength(3)
-@maxLength(11)
+@maxLength(12)
 param saname string
 
 @allowed([
