@@ -7,7 +7,7 @@ param location string = 'westeurope'
 var resgroupname = '${prefix}-rg'
 var saname = '${prefix}'
 var wsname =  '${prefix}ws'
-var keyvaultname = '${prefix}kv'
+var keyvaultname = '${prefix}-kv'
 // var saurl = 'https://${saname}.dfs.core.windows.net'
 var container = 'datalake'
 

@@ -8,7 +8,7 @@ param keyvaultname string
 param now string = utcNow()
 
 var login = 'sqladmin'
-var scrambled = uniqueString(now)
+var scrambled = '${uniqueString(now)}-U$10a'
 
 resource synworkspace 'Microsoft.Synapse/workspaces@2021-03-01' = {
   name: workspacename
