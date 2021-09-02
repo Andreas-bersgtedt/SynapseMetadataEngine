@@ -8,7 +8,7 @@ There is also a .cmd file with the cli instruction to deply the stack.
 
 ![](imageIaC.png)
 
-###Deployed infrastructure
+### Deployed infrastructure
 - Resource group
 - Keyvault
 - Storage account
